@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"bufio"
@@ -13,9 +13,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"quiz/internal/application/dto"
+	http2 "quiz/internal/infrastructure/http"
 )
 
 var apiUrl string
+var httpClient http2.HTTPClient
+var token string
 
 var quizCmd = &cobra.Command{
 	Use:   "quiz",
@@ -23,6 +26,8 @@ var quizCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		apiUrl = viper.GetString("API_URL")
+		httpClient = http2.NewClient()
+		token = viper.GetString("TOKEN")
 
 		for {
 			err := run()
@@ -53,7 +58,10 @@ func run() error {
 
 	fmt.Printf("Your username is: %s \n", username)
 
-	resp, err := http.Get(fmt.Sprintf("%s/game/%s", apiUrl, username))
+	headers := map[string]string{
+		"Authorization": token,
+	}
+	resp, err := httpClient.Get(fmt.Sprintf("%s/game/%s", apiUrl, username), headers)
 
 	if err != nil {
 		return fetchingGameError{}
@@ -87,7 +95,7 @@ func run() error {
 	game.Points = 0
 	game.UserAnswer = nil
 
-	resp, err = http.Get(apiUrl + "/questions")
+	resp, err = httpClient.Get(apiUrl+"/questions", headers)
 
 	if err != nil {
 		return fetchingQuestionError{}
@@ -140,7 +148,7 @@ func run() error {
 		return err
 	}
 
-	resp, err = http.Get(fmt.Sprintf("%s/user/%s/stats", apiUrl, username))
+	resp, err = httpClient.Get(fmt.Sprintf("%s/user/%s/stats", apiUrl, username), headers)
 
 	if err != nil {
 		return fetchingGameError{}
@@ -179,7 +187,7 @@ func postGame(userGame *dto.UserGame) error {
 		return savingGameError{}
 	}
 
-	resp, err := http.Post(apiUrl+"/game", "application/json", bytes.NewBuffer(jsonData))
+	resp, err := httpClient.Post(apiUrl+"/game", bytes.NewBuffer(jsonData), map[string]string{"Authorization": token})
 	if resp.StatusCode != http.StatusOK {
 		return savingGameError{}
 	}

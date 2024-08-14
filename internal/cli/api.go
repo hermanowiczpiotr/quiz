@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"context"
@@ -18,6 +18,7 @@ import (
 	"quiz/internal/infrastructure/persistance"
 	"quiz/internal/ports"
 	"quiz/internal/ports/generated"
+	"quiz/internal/ports/middleware"
 )
 
 var apiCmd = &cobra.Command{
@@ -45,9 +46,12 @@ var apiCmd = &cobra.Command{
 
 		h := generated.HandlerFromMux(controller, r)
 
+		token := viper.GetString("TOKEN")
+		handlerWithMiddleware := middleware.ApplyMiddleware(h, middleware.TokenAuthMiddleware(token))
+
 		port := viper.GetString("PORT")
 		s := &http.Server{
-			Handler: h,
+			Handler: handlerWithMiddleware,
 			Addr:    ":" + port,
 		}
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/viper"
-	"quiz/internal/cmd"
+	"quiz/internal/cli"
 )
 
 func main() {
@@ -15,5 +15,5 @@ func main() {
 
 	viper.AutomaticEnv()
 
-	cmd.Execute()
+	cli.Execute()
 }

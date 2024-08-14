@@ -19,7 +19,7 @@ To install and run the Quiz App, follow these steps:
 
 ## Description
 
-This solution features an open API without authorization, which is an intentional choice to simplify the implementation.
+This solution features an open API with static token, which is an intentional choice to simplify the implementation.
 
 The `oapi-codegen` library was used to generate the API handlers.
 
