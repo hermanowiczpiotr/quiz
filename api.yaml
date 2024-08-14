@@ -1,0 +1,188 @@
+openapi: 3.0.0
+info:
+  title: Example API
+  version: 1.0.0
+
+paths:
+  /questions:
+    get:
+      summary: Get all questions
+      operationId: getQuestions
+      responses:
+        '200':
+          description: A list of questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Question'
+        '500':
+          description: Internal server error
+  /game:
+    post:
+      summary: Submit a user's answer for a game
+      operationId: submitGame
+      requestBody:
+        description: The user's name and the answers they are submitting
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The name of the user
+                user_answers:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UserAnswer'
+                  description: A list of user's answers
+              required:
+                - username
+                - user_answers
+      responses:
+        '201':
+          description: The user's game status after submitting the answer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGame'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+  /game/{username}:
+    get:
+      summary: Get user game by username
+      operationId: getGame
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The username of the user whose game you want to retrieve
+      responses:
+        '200':
+          description: A specific game
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserGame'
+        '500':
+          description: Internal server error
+  /user/{username}/stats:
+    get:
+      summary: Get stats for user
+      operationId: getUserStats
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The username of the user
+      responses:
+        '200':
+          description: A specific game
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  points:
+                    type: integer
+                    description: The score obtained by the user
+                  rank_score:
+                    type: number
+                    format: float
+                    description: The percentage of users who scored worse than the current user
+                example:
+                  score: 85
+                  worstUsersPercentage: 75.5
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    UserGame:
+      type: object
+      properties:
+        username:
+          type: string
+          description: The username of the player
+        user_answer:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAnswer'
+          description: A list of user's answers
+        points:
+          type: integer
+          description: The total points scored by the user
+      required:
+        - username
+        - user_answer
+        - points
+
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the question
+        text:
+          type: string
+          description: The question text
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/Answer'
+          description: A list of possible answers
+        correct_answer_id:
+          type: string
+          description: The ID of the correct answer
+      required:
+        - id
+        - text
+        - options
+        - correct_answer_id
+
+    Answer:
+      type: object
+      properties:
+        text:
+          type: string
+          description: The answer text
+        id:
+          type: string
+          description: Unique identifier for the answer
+      required:
+        - text
+        - id
+
+    UserAnswer:
+      type: object
+      properties:
+        question_id:
+          type: integer
+          description: The ID of the question
+        selected_answer_id:
+          type: string
+          description: The ID of the selected answer
+      required:
+        - question_id
+        - selected_answer_id
+
+    UserStats:
+      type: object
+      properties:
+        score:
+          type: integer
+          description: The score obtained by the user
+        worstUsersPercentage:
+          type: number
+          format: float
+          description: The percentage of users who scored worse than the current user

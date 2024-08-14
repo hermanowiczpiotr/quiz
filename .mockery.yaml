@@ -1,0 +1,17 @@
+---
+quiet: false
+disable-version-string: true
+with-expecter: true
+dir: "internal/mocks/{{.PackagePath}}"
+mockname: "Mock{{.InterfaceName}}"
+filename: "mock_{{.InterfaceNameSnake}}.go"
+outpkg: "mocks"
+packages:
+  quiz/domain/service:
+    interfaces:
+      UserScoreComparisonServiceI:
+  quiz/domain/repository:
+    interfaces:
+      UserGameRepository:
+      QuestionRepository:
+
