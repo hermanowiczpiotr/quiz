@@ -14,20 +14,20 @@ import (
 )
 
 type Controller struct {
-	questionProvider        *query.GetQuestionsQueryHandler
+	GetQuestionQueryHandler *query.GetQuestionsQueryHandler
 	userGamesCommandHandler *command.AddUserGameCommandHandler
 	userGameQueryHandler    *query.GetUserGameQueryHandler
 	userStatsQueryHandler   *query.GetUserStatsQueryHandler
 }
 
 func NewController(
-	questionProvide *query.GetQuestionsQueryHandler,
+	GetQuestionQueryHandler *query.GetQuestionsQueryHandler,
 	userGamesCommandHandler *command.AddUserGameCommandHandler,
 	userGamesQueryHandler *query.GetUserGameQueryHandler,
 	userStatsQueryHandler *query.GetUserStatsQueryHandler,
 ) Controller {
 	return Controller{
-		questionProvider:        questionProvide,
+		GetQuestionQueryHandler: GetQuestionQueryHandler,
 		userGamesCommandHandler: userGamesCommandHandler,
 		userGameQueryHandler:    userGamesQueryHandler,
 		userStatsQueryHandler:   userStatsQueryHandler,
@@ -35,7 +35,14 @@ func NewController(
 }
 
 func (c Controller) GetQuestions(w http.ResponseWriter, r *http.Request) {
-	questions := c.questionProvider.Handle(query.GetQuestionsQuery{})
+	questions, err := c.GetQuestionQueryHandler.Handle(query.GetQuestionsQuery{})
+
+	if err != nil {
+		if err != nil {
+			http.Error(w, "Server internal error", http.StatusInternalServerError)
+			return
+		}
+	}
 
 	questionsOutput := make([]generated.Question, len(questions))
 	for i, question := range questions {

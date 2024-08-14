@@ -22,6 +22,6 @@ func NewGetQuestionsQueryHandler(questionsRepository repository.QuestionReposito
 	}
 }
 
-func (provider GetQuestionsQueryHandler) Handle(_ GetQuestionsQuery) []entity.Question {
-	return provider.questionsRepository.FindAll()
+func (provider GetQuestionsQueryHandler) Handle(_ GetQuestionsQuery) ([]entity.Question, error) {
+	return provider.questionsRepository.FindAll(), nil
 }
